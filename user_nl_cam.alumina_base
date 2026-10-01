@@ -1,0 +1,55 @@
+! Users should add all user specific namelist changes below in the form of 
+! namelist_var = new_namelist_value 
+
+! CARMA alumina test inputs (see ~/MIT/cesm2_port/ALUMINA_CARMA_PLAN.md)
+carma_emis_file     = '/Users/ashajain/MIT/cesm2_port/emissions/alumina_test_events.nc'
+carma_emis_psd_file = '/Users/ashajain/MIT/cesm2_port/emissions/alumina_test_psd.nc'
+
+! h0: daily means (unchanged).
+! h1: daily means of per-bin emission tendency (EM, kg/kg/s) and surface
+!     losses (DD sedimentation+dry dep, SW wet dep; kg/m2/s).
+! h2: end-of-day instantaneous CRALUM mixing ratios for the burden.
+! h3: daily means of the alumina radiative effect. rad_diag_1 = climate list with
+!     CRALUM01-36, rad_diag_2 = without them, so X_d1 - X_d2 is the alumina effect
+!     (rad_climate includes alumina when carma_alumina_rad_feedback = .true.).
+!     ODV_CRALUMnn is per-bin visible AOD (climate list only).
+nhtfrq = -24, -24, -24, -24
+mfilt  = 1, 1, 1, 1
+! h3 in double precision: the alumina flux differences are below float32 resolution.
+ndens  = 2, 2, 2, 1
+fincl2 = 'PS', 'CRALUM01EM', 'CRALUM02EM', 'CRALUM03EM', 'CRALUM04EM', 'CRALUM05EM', 'CRALUM06EM',
+        'CRALUM07EM', 'CRALUM08EM', 'CRALUM09EM', 'CRALUM10EM', 'CRALUM11EM', 'CRALUM12EM',
+        'CRALUM13EM', 'CRALUM14EM', 'CRALUM15EM', 'CRALUM16EM', 'CRALUM17EM', 'CRALUM18EM',
+        'CRALUM19EM', 'CRALUM20EM', 'CRALUM21EM', 'CRALUM22EM', 'CRALUM23EM', 'CRALUM24EM',
+        'CRALUM25EM', 'CRALUM26EM', 'CRALUM27EM', 'CRALUM28EM', 'CRALUM29EM', 'CRALUM30EM',
+        'CRALUM31EM', 'CRALUM32EM', 'CRALUM33EM', 'CRALUM34EM', 'CRALUM35EM', 'CRALUM36EM',
+        'CRALUM01DD', 'CRALUM02DD', 'CRALUM03DD', 'CRALUM04DD', 'CRALUM05DD', 'CRALUM06DD',
+        'CRALUM07DD', 'CRALUM08DD', 'CRALUM09DD', 'CRALUM10DD', 'CRALUM11DD', 'CRALUM12DD',
+        'CRALUM13DD', 'CRALUM14DD', 'CRALUM15DD', 'CRALUM16DD', 'CRALUM17DD', 'CRALUM18DD',
+        'CRALUM19DD', 'CRALUM20DD', 'CRALUM21DD', 'CRALUM22DD', 'CRALUM23DD', 'CRALUM24DD',
+        'CRALUM25DD', 'CRALUM26DD', 'CRALUM27DD', 'CRALUM28DD', 'CRALUM29DD', 'CRALUM30DD',
+        'CRALUM31DD', 'CRALUM32DD', 'CRALUM33DD', 'CRALUM34DD', 'CRALUM35DD', 'CRALUM36DD',
+        'CRALUM01SW', 'CRALUM02SW', 'CRALUM03SW', 'CRALUM04SW', 'CRALUM05SW', 'CRALUM06SW',
+        'CRALUM07SW', 'CRALUM08SW', 'CRALUM09SW', 'CRALUM10SW', 'CRALUM11SW', 'CRALUM12SW',
+        'CRALUM13SW', 'CRALUM14SW', 'CRALUM15SW', 'CRALUM16SW', 'CRALUM17SW', 'CRALUM18SW',
+        'CRALUM19SW', 'CRALUM20SW', 'CRALUM21SW', 'CRALUM22SW', 'CRALUM23SW', 'CRALUM24SW',
+        'CRALUM25SW', 'CRALUM26SW', 'CRALUM27SW', 'CRALUM28SW', 'CRALUM29SW', 'CRALUM30SW',
+        'CRALUM31SW', 'CRALUM32SW', 'CRALUM33SW', 'CRALUM34SW', 'CRALUM35SW', 'CRALUM36SW'
+fincl3 = 'CRALUM01:I', 'CRALUM02:I', 'CRALUM03:I', 'CRALUM04:I', 'CRALUM05:I', 'CRALUM06:I',
+        'CRALUM07:I', 'CRALUM08:I', 'CRALUM09:I', 'CRALUM10:I', 'CRALUM11:I', 'CRALUM12:I',
+        'CRALUM13:I', 'CRALUM14:I', 'CRALUM15:I', 'CRALUM16:I', 'CRALUM17:I', 'CRALUM18:I',
+        'CRALUM19:I', 'CRALUM20:I', 'CRALUM21:I', 'CRALUM22:I', 'CRALUM23:I', 'CRALUM24:I',
+        'CRALUM25:I', 'CRALUM26:I', 'CRALUM27:I', 'CRALUM28:I', 'CRALUM29:I', 'CRALUM30:I',
+        'CRALUM31:I', 'CRALUM32:I', 'CRALUM33:I', 'CRALUM34:I', 'CRALUM35:I', 'CRALUM36:I',
+        'PS:I'
+fincl4 = 'FSNT', 'FSNT_d1', 'FSNT_d2', 'FLNT', 'FLNT_d1', 'FLNT_d2',
+        'FSNS', 'FSNS_d1', 'FSNS_d2', 'FLNS', 'FLNS_d1', 'FLNS_d2',
+        'FSUTOA', 'FSUTOA_d1', 'FSUTOA_d2', 'FLUT', 'FLUT_d1', 'FLUT_d2',
+        'QRS', 'QRS_d1', 'QRS_d2', 'QRL', 'QRL_d1', 'QRL_d2',
+        'AEROD_v', 'AODvstrt', 'ODV_CRALUM01', 'ODV_CRALUM02', 'ODV_CRALUM03', 'ODV_CRALUM04',
+        'ODV_CRALUM05', 'ODV_CRALUM06', 'ODV_CRALUM07', 'ODV_CRALUM08', 'ODV_CRALUM09', 'ODV_CRALUM10',
+        'ODV_CRALUM11', 'ODV_CRALUM12', 'ODV_CRALUM13', 'ODV_CRALUM14', 'ODV_CRALUM15', 'ODV_CRALUM16',
+        'ODV_CRALUM17', 'ODV_CRALUM18', 'ODV_CRALUM19', 'ODV_CRALUM20', 'ODV_CRALUM21', 'ODV_CRALUM22',
+        'ODV_CRALUM23', 'ODV_CRALUM24', 'ODV_CRALUM25', 'ODV_CRALUM26', 'ODV_CRALUM27', 'ODV_CRALUM28',
+        'ODV_CRALUM29', 'ODV_CRALUM30', 'ODV_CRALUM31', 'ODV_CRALUM32', 'ODV_CRALUM33', 'ODV_CRALUM34',
+        'ODV_CRALUM35', 'ODV_CRALUM36'
