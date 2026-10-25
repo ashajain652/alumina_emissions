@@ -17,10 +17,16 @@ Inputs:
     to the surviving share (about 0.67).
 
 Mass basis:
-  The inventory Al2O3 is the total released mass, so each reentry emits
-      Al2O3 * droplet(z)
-  at altitude z. --conserve-mass instead normalises each droplet profile to 1
-  (shape only, vaporisation loss ignored, total mass unchanged).
+  The inventory Al2O3 is the total released mass. The droplets are AA7075,
+  treated as pure Al (alloying metals ignored), so the profile is applied to
+  the equivalent Al mass and the result converted back to Al2O3:
+      Al      = Al2O3 * 2 M_Al / M_Al2O3
+      Al(z)   = Al * droplet(z)
+      Al2O3(z) = Al(z) * M_Al2O3 / (2 M_Al)
+  at altitude z. Because droplet(z) is a mass fraction, the two conversions
+  cancel: Al2O3(z) = Al2O3 * droplet(z). --conserve-mass instead normalises
+  each droplet profile to 1 (shape only, vaporisation loss ignored, total
+  mass unchanged).
 
   Only satellite droplet profiles exist. By default rocket bodies (S0-S4) use
   the satellite profile too; --satellites-only drops them.
@@ -51,6 +57,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 PROFILE_DIR = ROOT / "Droplet Emission Profiles"
 PROFILE_RE = re.compile(r"^droplet_([0-9.]+)um_satellite_al_aerosol_profile\.csv$")
+
+# Standard atomic weights (g/mol); Al mass per unit Al2O3 mass is about 0.5293.
+M_AL = 26.9815385
+M_O = 15.999
+M_AL2O3 = 2.0 * M_AL + 3.0 * M_O
+AL_PER_AL2O3 = 2.0 * M_AL / M_AL2O3
 
 # Noleap calendar: February always has 28 days.
 DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -138,7 +150,9 @@ def write_nc(out_path, events, alt, weights, attrs):
     lat = np.repeat(np.array([e[3] for e in events], dtype="f8"), nlev)
     lon = np.repeat(np.array([e[4] for e in events], dtype="f8"), nlev)
     altitude = np.tile(alt_k.astype("f8"), len(events))
-    mass = np.outer([e[5] for e in events], w_k).ravel()
+    # Inventory Al2O3 -> Al in the droplets -> surviving Al per bin -> Al2O3.
+    al_kg = np.array([e[5] for e in events]) * AL_PER_AL2O3
+    mass = np.outer(al_kg, w_k).ravel() / AL_PER_AL2O3
 
     with netcdf_file(out_path, "w", version=2) as nc:
         nc.createDimension("row", n)
@@ -199,7 +213,8 @@ def main(argv=None):
     events, skipped = read_events(args.reentries, args.satellites_only, args.year_offset)
     inventory_kg = math.fsum(e[5] for e in events)
     print(f"{args.reentries.name}: {len(events)} located reentries, "
-          f"{inventory_kg:,.2f} kg Al2O3 released")
+          f"{inventory_kg:,.2f} kg Al2O3 released "
+          f"({inventory_kg * AL_PER_AL2O3:,.2f} kg Al in the droplets)")
     for k, (n, m) in sorted(skipped.items()):
         print(f"  skipped {n:5d} ({m * TONNE_TO_KG:12,.2f} kg): {k}")
 
@@ -229,6 +244,9 @@ def main(argv=None):
             "source_inventory": str(args.reentries),
             "ablation_profile": str(path),
             "mass_basis": mass_basis,
+            "al_al2o3_conversion": (f"profile applied to Al mass = Al2O3 x {AL_PER_AL2O3:.6f} "
+                                    "(AA7075 droplets treated as pure Al), result "
+                                    "converted back to Al2O3"),
             "rocket_bodies": rocket_bodies,
             "surviving_share": surviving,
             "altitude_note": "altitude is the centre of a 1 km profile bin; "
