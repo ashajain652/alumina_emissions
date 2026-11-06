@@ -78,3 +78,11 @@ Original state (2026-09-27, before any CARMA work):
   - Emitted: 1897.950869 kg (day 1: 7 events, 1781.95 kg; day 2: 1 event, 116.00 kg). Expected 1897.950872 kg, relative error -1.4e-9.
   - Deposited: DD 1852.15 kg + SW 45.80 kg = 1897.950906 kg. The end-of-day-2 burden is 0, so the 250 um particles all reach the surface within the 2 days. The end-of-day-1 snapshot holds 9.23 kg.
 - Case left on -carma alumina_d250um (d250um build) with the 2025 user_nl_cam, STOP_N=2. Run output: archive/.../atm/hist/*.cam.h[0-3,6].0001-01-0{1,2,3}; submit log: emissions/d250um_2025_run.log.
+
+## Fall velocity table test: FWsc2010climo.alum2um_vftest (2026-10-24)
+- New case, cloned from FWsc2010climo.CARMA_dev (new build): -carma alumina_d2um, CAM branch ashajain/aerosol_terminal_velocity (uncommitted carma_vf_from_file / carma_vf_file code), same 2025 user_nl_cam plus `carma_vf_from_file = .true.` and `carma_vf_file = emissions/vf_tables/alumina_d2um_vf_carma.nc`. 2 days.
+- The table holds CARMA's own layer-centre vf for d2um on this case's reference atmosphere (offline driver from the CARMA source, T from carma_reft.nc), at the layer altitudes alumina_vf_apply computes, so the used vf should equal CARMA's.
+- Build OK (setupvf.o from models/alumina_d2um, calls alumina_vf_apply). Run OK at 15:05, and st_archive succeeded.
+  - atm.log: table read (70 altitudes, 0.055-142.889 km, 16 bins); alumina_vf_apply listed all 1120 (lev, bin) pairs. Used vs CARMA and used vs table both agree to 9e-5, the log's print precision; the logged layer altitudes equal the table's.
+  - Emissions fired (104 row firings in cesm.log). End-of-day burden 1781.951 kg (day 1) and 1897.951 kg (day 2), equal to the emitted mass; 2 um particles barely sediment in 2 days. No NaN.
+- Found: CAM's cam/carma_getT.F90 reads the IC T into init_t(plon,pver,plat) but the file is (lon,lat,lev), so carma_reft.nc (the fixedinit reference T) is a scrambled 252-260 K at every level instead of the real profile (e.g. 794 K at the top, ~193 K near the mesopause). Reproduced to 1e-12 by re-reading the IC in that order. Not fixed yet.
